@@ -16,6 +16,17 @@ CORS(app)
 # Create the jackson family object
 jackson_family = FamilyStructure("Jackson")
 
+miembros_iniciales =[
+    {"first_name": "Jhon", "age": 33, "lucky_number":[7,13,22]},
+    {"first_name": "Jane", "age": 35, "lucky_number":[10,14,3]},
+    {"first_name": "Jimmy", "age": 5, "lucky_number":[1]}
+]
+
+for member in miembros_iniciales:
+    jackson_family.add_member(member)
+
+ 
+
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -32,10 +43,76 @@ def sitemap():
 @app.route('/members', methods=['GET'])
 def handle_hello():
     # This is how you can use the Family datastructure by calling its methods
-    members = jackson_family.get_all_members()
-    response_body = {"hello": "world",
+    try:
+        members = jackson_family.get_all_members()
+        response_body = {
                      "family": members}
-    return jsonify(response_body), 200
+        return jsonify(response_body), 200
+
+    except Exception:
+        response_body = {
+            "error" : "Error al recuperar los miembros de la familia"
+        }
+        return jsonify(response_body), 500
+
+
+@app.route('/members', methods=['POST'])
+def añadir_miembro():
+    # This is how you can use the Family datastructure by calling its methods
+    try:
+        member = request.json
+        nuevo_miembro = jackson_family.add_member(member)
+        response_body = {
+                     "family": nuevo_miembro}
+        return jsonify(response_body), 201
+    except Exception:
+        response_body = {
+            "error" : "Error añandiendo un miembro a la familia"
+        }
+        return jsonify(response_body), 500
+
+@app.route('/members/<int:id>', methods=['DELETE'])
+def borrar_miembro(id):
+    # This is how you can use the Family datastructure by calling its methods
+    try:
+        miembro_borrado = jackson_family.delete_member(id)
+        response_body = {
+                     "family": miembro_borrado}
+        return jsonify(response_body), 200
+    
+    except Exception:
+        response_body = {
+            "error" : "Error al eliminar a un miembro de la familia"
+        }
+        return jsonify(response_body), 500
+
+@app.route('/members/<int:id>', methods=['GET'])
+def miembro(id):
+    # This is how you can use the Family datastructure by calling its methods
+    try:
+        miembro = jackson_family.get_member(id)
+        response_body = {
+                     "family": miembro}
+        return jsonify(response_body), 200
+    except Exception:
+        response_body = {
+            "error" : "Error al recuperar a un miembro de la familia"
+        }
+        return jsonify(response_body), 500
+
+@app.route('/members/<int:id>', methods=['PUT'])
+def actualizar_miembro(id):
+    try:
+        actualizacion_miembro = request.json
+        miembro_actualizado = jackson_family.update_member(id, actualizacion_miembro)
+        response_body = {
+                     "family": miembro_actualizado}
+        return jsonify(response_body), 200
+    except Exception:
+        response_body = {
+            "error" : "Error al actualizar a un miembro de la familia"
+        }
+        return jsonify(response_body), 500
 
 
 
